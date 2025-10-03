@@ -61,6 +61,38 @@ export default class JsonTablePlugin extends Plugin {
 		});
 
 		this.addCommand({
+			id: "generate-table-from-file",
+			name: "Generate table from selected file",
+			icon: "table",
+			editorCallback: async (editor: Editor) => {
+				
+				// with spit and glue
+				const file_path_string = editor.getSelection();
+
+				try {
+					const tfile = this.app.vault.getFileByPath(file_path_string);
+
+					if(!tfile){
+						throw new Error("File not found");
+					}
+					const content = await this.app.vault.read(tfile);
+					
+					editor.replaceSelection(
+						`${file_path_string}`+'\n\n'+jsonToTable(content)
+					);
+					if (this.settings.devMode) {
+						console.log(
+							"File Table fetch response:",
+						);
+					}
+				} catch (error) {
+					console.error(error);
+					new Notice(error);
+				}
+			}
+		});
+
+		this.addCommand({
 			id: "generate-json-from-selected-table",
 			name: "Generate JSON from selected table",
 			icon: "file-json",
